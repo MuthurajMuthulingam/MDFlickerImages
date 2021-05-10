@@ -1,0 +1,6 @@
+framework module Pods_MDFlickerImages_MDFlickerImagesUITests {
+  umbrella header "Pods-MDFlickerImages-MDFlickerImagesUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}
