@@ -7,13 +7,15 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class MDFlickerImagesViewController: UIViewController {
+    
+    // MARK: - Private Helpers
+    private lazy var networkService: MDNetworkService = MDNetworkService()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        networkService.getFlickerImages(for: "kittens")
     }
-
-
 }
 
