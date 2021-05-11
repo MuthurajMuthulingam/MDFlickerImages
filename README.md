@@ -13,3 +13,11 @@ Technology
 Design Patterns
 - Architectural : MVC
 - Delegation, Observer, TargetAction
+
+External Dependancy
+- Used MMNetworkManager which is solely created by me
+
+Next Steps
+- Add Unit test coverage
+- Add Documentation to make it more readable
+
