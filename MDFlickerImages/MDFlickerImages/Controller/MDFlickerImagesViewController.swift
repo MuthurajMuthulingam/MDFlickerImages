@@ -16,7 +16,7 @@ final class MDFlickerImagesViewController: UIViewController {
     // MARK: - Private Helpers
     private lazy var networkService: MDNetworkService = MDNetworkService()
     private lazy var imageInfo: FlickerPhoto? = nil
-    private lazy var currentPage: Int = 0
+    private lazy var currentPage: Double = 0
     private lazy var currentSearchQuery: String = ""
     private lazy var isLoadingData: Bool = false
     private var photos: [ImageInfo] = [] {
@@ -40,10 +40,15 @@ private extension PrivateHelpers {
             resetView()
             return
         }
+        let totalPages: Double = imageInfo?.photos?.total ?? 0
+        if currentSearchQuery == searchText && currentPage == totalPages {
+            return
+        }
         if currentSearchQuery == searchText {
             currentPage += 1
         } else {
             currentPage = 1 // reset
+            currentSearchQuery = searchText
         }
         fetchFlickerImages(for: searchText, of: currentPage)
     }
@@ -53,10 +58,16 @@ private extension PrivateHelpers {
         photos = [] // this reload the view
     }
     
-    func fetchFlickerImages(for query: String, of page: Int) {
+    func fetchFlickerImages(for query: String, of page: Double) {
         func handleSuccess(with flickerInfo: FlickerPhoto) {
             imageInfo = flickerInfo
-            photos = flickerInfo.photos?.photo ?? []
+            var photos: [ImageInfo] = self.photos
+            if currentPage > 1 { // running on different page
+                photos += flickerInfo.photos?.photo ?? []
+            } else {
+                photos = flickerInfo.photos?.photo ?? []
+            }
+            self.photos = photos
         }
         func handleFailure(using error: NetworkError) {
             
