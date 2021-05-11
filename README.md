@@ -21,3 +21,5 @@ Next Steps
 - Add Unit test coverage
 - Add Documentation to make it more readable
 
+Known issues/Items
+- Please note that, UI con be improvised with better UX
