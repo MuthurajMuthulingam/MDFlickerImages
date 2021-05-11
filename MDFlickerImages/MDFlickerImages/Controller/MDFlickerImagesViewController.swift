@@ -16,6 +16,9 @@ final class MDFlickerImagesViewController: UIViewController {
     // MARK: - Private Helpers
     private lazy var networkService: MDNetworkService = MDNetworkService()
     private lazy var imageInfo: FlickerPhoto? = nil
+    private lazy var currentPage: Int = 0
+    private lazy var currentSearchQuery: String = ""
+    private lazy var isLoadingData: Bool = false
     private var photos: [ImageInfo] = [] {
         didSet {
             collectionView.reloadData()
@@ -37,7 +40,12 @@ private extension PrivateHelpers {
             resetView()
             return
         }
-        fetchFlickerImages(for: searchText)
+        if currentSearchQuery == searchText {
+            currentPage += 1
+        } else {
+            currentPage = 1 // reset
+        }
+        fetchFlickerImages(for: searchText, of: currentPage)
     }
     
     func resetView() {
@@ -45,7 +53,7 @@ private extension PrivateHelpers {
         photos = [] // this reload the view
     }
     
-    func fetchFlickerImages(for query: String) {
+    func fetchFlickerImages(for query: String, of page: Int) {
         func handleSuccess(with flickerInfo: FlickerPhoto) {
             imageInfo = flickerInfo
             photos = flickerInfo.photos?.photo ?? []
@@ -53,8 +61,10 @@ private extension PrivateHelpers {
         func handleFailure(using error: NetworkError) {
             
         }
-        networkService.getFlickerImages(for: query) { [weak self] result in
+        networkService.getFlickerImages(for: query, of: page) {[weak self] result in
             DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.isLoadingData = false
                 switch result {
                 case let .success(flickerPhoto):
                     guard let flickerPhoto = flickerPhoto else { return }
@@ -87,6 +97,7 @@ private typealias CollectionViewHelpers = MDFlickerImagesViewController
 extension CollectionViewHelpers: UICollectionViewDelegate,
                                  UICollectionViewDataSource,
                                  UICollectionViewDelegateFlowLayout {
+    // Cllection view datasource and Delegates
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         photos.count
     }
@@ -111,6 +122,18 @@ extension CollectionViewHelpers: UICollectionViewDelegate,
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+    }
+    
+    // Scrollview Delegates
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        if offsetY > contentHeight - scrollView.frame.size.height {
+            if !isLoadingData {
+                isLoadingData = true
+                performImageSearchIfNeeded()
+            }
+        }
     }
 }
 
