@@ -7,8 +7,8 @@ Functionalities
 - Page based Images rendering in vertical three coloumn collection
 
 Technology 
-- Swift 4.2
-- Xcode 11.4.1
+- Swift 5.1
+- Xcode 12.2
 
 Design Patterns
 - Architectural : MVC
